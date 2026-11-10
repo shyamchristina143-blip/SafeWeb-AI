@@ -1,0 +1,34 @@
+name: SafeWeb AI Database Update
+
+on:
+  workflow_dispatch:
+
+  schedule:
+    - cron: "0 3 * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Update database
+        run: python scripts/update.py
+
+      - name: Save database
+        run: |
+          git config user.name "SafeWeb AI Bot"
+          git config user.email "safeweb-ai@users.noreply.github.com"
+          git add blocklists/nsfw.txt
+          git diff --cached --quiet || git commit -m "Update database"
+          git push
